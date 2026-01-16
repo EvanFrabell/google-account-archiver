@@ -1,3 +1,9 @@
+# Google Service Account
+service_account.json
+
+# PyCharm
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
