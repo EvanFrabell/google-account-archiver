@@ -3,6 +3,7 @@ service_account.json
 
 # PyCharm
 .idea
+.downloads
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
