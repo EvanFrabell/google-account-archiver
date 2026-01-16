@@ -1,6 +1,8 @@
 import shutil
+import socket
 import time
 import os
+from functools import wraps
 
 from googleapiclient.http import MediaFileUpload
 from tqdm import tqdm
@@ -40,6 +42,35 @@ CHUNK_SIZE = 8 * 1024 * 1024  # 8 MB
 
 ADMIN_CREDS = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES,).with_subject(ADMIN_EMAIL)
 VAULT = build("vault", "v1", credentials=ADMIN_CREDS)
+
+
+
+def retry_on_network_error(retries=3, delay=2):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            for i in range(retries):
+                try:
+                    return func(*args, **kwargs)
+                except (ConnectionAbortedError, ConnectionResetError,
+                        socket.timeout, HttpError) as e:
+                    last_exception = e
+                    # If it's an HttpError, only retry on 5xx or 429 (rate limit)
+                    if isinstance(e, HttpError) and e.resp.status not in [429, 500, 502, 503, 504]:
+                        raise e
+
+                    wait = delay * (2 ** i)
+                    print(f"\n⚠️ Connection error in {func.__name__}: {e}")
+                    print(f"🔄 Retry {i + 1}/{retries} in {wait}s...")
+                    time.sleep(wait)
+            print(f"❌ {func.__name__} failed after {retries} attempts.")
+            raise last_exception
+
+        return wrapper
+
+    return decorator
+
 
 def assign_enterprise_license(service, user_email):
     print(f"Assigning {ENTERPRISE_SKUS[TARGET_SKU]} to {user_email}...")
@@ -82,10 +113,11 @@ def check_and_fix_license(user_email):
         assign_enterprise_license(service, user_email)
 
 
+@retry_on_network_error(retries=5)
 def start_vault_export(user_email: str):
 
     matter_body = {
-        "name": f"Archive Matter: {user_email}",
+        "name": f"Gmail Archive Matter: {user_email}",
         "description": f"Automated export for offboarding {user_email}",
         "state": "OPEN",
     }
@@ -117,6 +149,7 @@ def start_vault_export(user_email: str):
     return matter_id, export_id
 
 
+@retry_on_network_error(retries=5)
 def start_vault_export_gdrive(user_email: str):
 
     matter_body = {
@@ -355,12 +388,7 @@ if __name__ == "__main__":
     print(f"Monitor this export at: https://vault.google.com/matter/{matter_id}/exports")
     process_export(matter_id, export_id)
 
-    time.sleep(30)
-
-    # Google Drive Matter
-    matter_id, export_id = start_vault_export_gdrive(USER_TO_EXPORT)
-    print(f"Monitor this export at: https://vault.google.com/matter/{matter_id}/exports")
-    process_export(matter_id, export_id)
+    time.sleep(15)
 
     upload_files_from_downloads()
 

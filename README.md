@@ -4,7 +4,7 @@
 1. Install python - https://www.python.org/downloads/
 2. Download service account (json) Key from https://console.cloud.google.com/ it should only in the Workspace-Archiver project.
 3. Place service account .json file into google-account-archiver root directory.  Rename to service_account.json 
-4. Double click main.py to start the script.
+4. Open directory in PowerShell and type "python main.py" .
 5. Enter targeted user's email and enjoy!
 6. Double check uploaded archive files before deleting user!!! The script does not delete users...
 
@@ -21,4 +21,4 @@
 6. (Admin Google Drive) Create new folder in My Drive.  Name it after the user's email.
 7. (Admin Google Drive) Upload files from Matter export into the newly created folder.
 8. (Google Admin) Remove license from user.
-9. (Google Admin) Delete user.
+9. (Google Admin) Delete user and be certain to transfer Drive And Docs w/ Include files that are not share with anyone.
