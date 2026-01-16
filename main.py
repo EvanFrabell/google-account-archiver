@@ -355,6 +355,8 @@ if __name__ == "__main__":
     print(f"Monitor this export at: https://vault.google.com/matter/{matter_id}/exports")
     process_export(matter_id, export_id)
 
+    time.sleep(30)
+
     # Google Drive Matter
     matter_id, export_id = start_vault_export_gdrive(USER_TO_EXPORT)
     print(f"Monitor this export at: https://vault.google.com/matter/{matter_id}/exports")
