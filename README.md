@@ -4,9 +4,10 @@
 1. Install python - https://www.python.org/downloads/
 2. Download service account (json) Key from https://console.cloud.google.com/ it should only in the Workspace-Archiver project.
 3. Place service account .json file into google-account-archiver root directory.  Rename to service_account.json 
-4. Open directory in PowerShell and type "python main.py" .
-5. Enter targeted user's email and enjoy!
-6. Double check uploaded archive files before deleting user!!! The script does not delete users...
+4. Open directory in PowerShell and type "python -m pip install -r requirements.txt".  If that doesn't work "pip install -r requirements.txt".
+5. While in PowerShell type "python main.py" .
+6. Enter targeted user's email and enjoy!
+7. Double check uploaded archive files before deleting user!!! The script does not delete users...
 
 ### Manual Operation
 1. (Google Admin) Add Google Enterprise License to user.
